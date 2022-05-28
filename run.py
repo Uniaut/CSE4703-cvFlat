@@ -3,10 +3,12 @@ import flat
 import tk_test
 
 
-def process(iamge: cv2.Mat):
+def process(image: cv2.Mat):
     try:
-        tk_test.process(iamge)
-    except:
+        # flat.process(image)
+        tk_test.process(image)
+    except Exception as e:
+        print(e)
         pass
 
 def main():
@@ -21,4 +23,5 @@ def main():
 
 
 if __name__ == '__main__':
+    print(cv2.__version__)
     main()
