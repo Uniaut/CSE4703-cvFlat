@@ -95,9 +95,9 @@ def process(image: cv2.Mat):
     else:
         lines = list(lines_dict.values())
 
-    if (num_lines := len(lines)) != 4:
+    if len(lines) != 4:
         return
-        print('number of lines', num_lines)
+        print('number of lines', len(lines))
         for a, b in lines_dict.items():
             print(a)
     

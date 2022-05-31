@@ -12,7 +12,7 @@ def process(image: cv2.Mat):
         pass
 
 def main():
-    capture = cv2.VideoCapture(2, cv2.CAP_DSHOW)
+    capture = cv2.VideoCapture(0, cv2.CAP_DSHOW)
     cv2.destroyAllWindows()
     while True:
         ret, frame = capture.read()
@@ -24,4 +24,6 @@ def main():
 
 if __name__ == '__main__':
     print(cv2.__version__)
+    tk_test.process(cv2.imread('../img/test.jpg', cv2.IMREAD_ANYCOLOR))
+    cv2.waitKey(0)
     main()
