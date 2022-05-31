@@ -37,47 +37,45 @@ def line_intersection(line1, line2, polar=False):
 def process(image: cv2.Mat):
     original = image.copy()
     lsd = cv2.createLineSegmentDetector(0)
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    lines = lsd.detect(image)[0]
+    lines = lsd.detect(cv2.cvtColor(image, cv2.COLOR_BGR2GRAY))[0]
     drawn_image = lsd.drawSegments(image, lines)
-    cv2.imshow('TK draw', drawn_image)
+    cv2.imshow('1. original', drawn_image)
 
-    edges = cv2.GaussianBlur(image, (3, 3), 0)
-    edges = cv2.GaussianBlur(image, (3, 3), 0)
-    edges = cv2.Canny(edges, 50, 200)
-    # cv2.imshow('TK edges', edges)
+    blurred = cv2.GaussianBlur(image, (3, 3), 0)
+    blurred_split = cv2.split(blurred)
+    edges_split = tuple(map(lambda img: cv2.Canny(img, 50, 200), blurred_split))
+    edges = cv2.merge(edges_split)
+    cv2.imshow('2. edges', edges)
 
-    mask = np.zeros((image.shape[0] + 2, image.shape[1] + 2), np.uint8)
-    edges = cv2.dilate(edges, np.ones((3, 3), np.uint8), iterations=2)
-    arbitrary = 150  # any value except 255 because edges are 255
-    flooded = cv2.floodFill(edges, mask, (edges.shape[1] // 2, edges.shape[0] // 2), arbitrary)[1]
+    edges = sum(edges_split)
+    segmented_edges = edges
 
+    if True:
+        mask = np.zeros((image.shape[0] + 2, image.shape[1] + 2), np.uint8)
+        edges = cv2.dilate(edges, np.ones((3, 3), np.uint8), iterations=2)
+        arbitrary = 150  # any value except 255 because edges are 255
+        for dx, dy in itertools.product([-10, 0, 10], [-10, 0, 10]):
+            starting_point = ((edges.shape[1] // 2) + dx, (edges.shape[0] // 2) + dy)
+            flooded = cv2.floodFill(edges, mask, starting_point, arbitrary)[1]
+        
+        flooded_ = flooded.copy()
+        for dx, dy in itertools.product([-10, 0, 10], [-10, 0, 10]):
+            starting_point = ((edges.shape[1] // 2) + dx, (edges.shape[0] // 2) + dy)
+            flooded_ = cv2.circle(flooded_, starting_point, 3, (0, 0, 255))
+        cv2.imshow('flooded', flooded_)
+
+        flooded_mask = np.zeros((flooded.shape))
+        flooded_mask[edges == arbitrary] = 255
+        # cv2.imshow('flooded_mask', flooded_mask)
+
+        segmented_edges = cv2.Canny(np.uint8(flooded_mask), 100, 200, L2gradient=True)
     
-    flooded_ = flooded.copy()
-    flooded_ = cv2.circle(flooded_, (edges.shape[1] // 2, edges.shape[0] // 2), 10, (0, 0, 255))
-    # cv2.imshow('flooded', flooded_)
-
-    flooded_mask = np.zeros((flooded.shape))
-    flooded_mask[edges == arbitrary] = 255
-    # cv2.imshow('flooded_mask', flooded_mask)
-
-    segmented_edges = cv2.Canny(np.uint8(flooded_mask), 100, 200, L2gradient=True)
-
+    
     lines = lsd.detect(segmented_edges.astype('uint8'))[0]
     drawn_image = lsd.drawSegments(segmented_edges, lines)
     cv2.imshow('drawn_image', drawn_image)
 
     # 밑에 코드에서 오류 발생해서 주석처리
-    '''
-    for l in range(len(lines)):
-        xy = line_intersection(lines[l], lines[l-1], False)
-        if xy[0]<0 or xy[1]<0 or xy[0]>plane_.shape[0] or xy[1]>plane_.shape[1]:
-            continue
-    #     print(xy)
-        plane_ = cv2.circle(drawn_image, xy, 5, (0, 0, 255), 2)
-    cv2.imshow("plane_", plane_)
-    cv2.waitKey(0)
-'''
 
     plane = np.zeros(image.shape)
     lines = cv2.HoughLines(
@@ -97,7 +95,7 @@ def process(image: cv2.Mat):
 
     if len(lines) != 4:
         return
-        print('number of lines', len(lines))
+        print('number of lines', num_lines)
         for a, b in lines_dict.items():
             print(a)
     
@@ -110,8 +108,8 @@ def process(image: cv2.Mat):
         y0 = b * rho
         pt1 = (int(x0 + 1000 * (-b)), int(y0 + 1000 * (a)))
         pt2 = (int(x0 - 1000 * (-b)), int(y0 - 1000 * (a)))
-        cv2.line(plane, pt1, pt2, (arbitrary, 234, arbitrary), 1, cv2.LINE_AA)
-    # cv2.imshow('plane1.5', plane)
+        cv2.line(plane, pt1, pt2, (0, 255, 0), 1, cv2.LINE_AA)
+    cv2.imshow('plane1.5', plane)
 
     # line_intersection
     points_ = []

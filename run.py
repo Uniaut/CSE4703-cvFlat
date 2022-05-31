@@ -12,7 +12,7 @@ def process(image: cv2.Mat):
         pass
 
 def main():
-    capture = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+    capture = cv2.VideoCapture(2, cv2.CAP_DSHOW)
     cv2.destroyAllWindows()
     while True:
         ret, frame = capture.read()
