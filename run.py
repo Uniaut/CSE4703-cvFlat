@@ -6,10 +6,11 @@ import change
 def process(original: cv2.Mat, image: cv2.Mat):
     try:
         # flat.process(image)
-        change.process(original, image)
+        result = change.process(original, image)
     except Exception as e:
         print(e)
         pass
+    return result
 
 def main():
     capture = cv2.VideoCapture(0, cv2.CAP_DSHOW)
@@ -18,7 +19,7 @@ def main():
     while True:
         _, frame = capture.read()
         frame = cv2.resize(frame, (0, 0), fx=1.0, fy=1.0)
-        process(original, frame)
+        original = process(original, frame)
         keycode = cv2.waitKey(25)
         if keycode == 27:
             break

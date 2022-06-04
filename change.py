@@ -34,17 +34,15 @@ def process(keyframe: cv2.Mat, image: cv2.Mat):
     flooded = cv2.erode(flooded, np.ones((3, 3)), iterations=2)
     cv2.imshow('asdfasfdsaf', flooded)
 
-    mask = mask[1:-1, 1:-1] > .5
+    mask = mask[1:-1, 1:-1]
+    mask = mask > 0.5
     print(mask.shape)
     print(original_keyfr.shape)
     original_image[~mask] = original_keyfr[~mask]
     print(original_image.shape)
-    cv2.imshow('asdfhgnuioafdinjab', original_image)
+    cv2.imshow('RESULT', original_image)
 
-    blurred_split = cv2.split(flooded)
-    edges_split = tuple(map(lambda img: cv2.Canny(img, 25, 150), blurred_split))
-
-    cv2.imshow('Merged RGB', cv2.merge(edges_split))
-    edges = sum(edges_split)
-
-    cv2.imshow('CED', edges)
+    if np.random.rand() < 0.01:
+        return original_image
+    else:
+        return original_keyfr
